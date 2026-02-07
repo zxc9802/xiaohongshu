@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #FF2442;
+  --primary-light: #FFF1F2;
+  --secondary: #FB7185;
+  --background: #FFF8F8;
+  --surface: #FFFFFF;
+  --text-primary: #1A1A1A;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  background: linear-gradient(180deg, #FFF8F8 0%, #FFFFFF 100%);
+  min-height: 100vh;
+}
+
+/* 自定义滚动条 - 小红书风格 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFF1F2;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FF2442 0%, #FB7185 100%);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E11D48;
+}
+
+/* 文本选中样式 */
+::selection {
+  background: rgba(255, 36, 66, 0.2);
+  color: #1A1A1A;
+}
+
+/* 输入框焦点样式 */
+textarea:focus,
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #FF2442;
+  box-shadow: 0 0 0 3px rgba(255, 36, 66, 0.1);
+}
+
+/* 按钮点击效果 */
+button:active {
+  transform: scale(0.98);
+}
+
+/* 卡片悬浮效果 */
+@layer utilities {
+  .card-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .card-hover:hover {
+    @apply shadow-card-hover -translate-y-1;
+  }
+
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/50;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-500 to-primary-400 bg-clip-text text-transparent;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-500 to-primary-400 text-white font-medium
+           py-3 px-6 rounded-2xl shadow-button cursor-pointer
+           transition-all duration-200 ease-out
+           hover:shadow-lg hover:-translate-y-0.5
+           active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply bg-primary-50 text-primary-500 font-medium
+           py-3 px-6 rounded-2xl cursor-pointer
+           transition-all duration-200 ease-out
+           hover:bg-primary-100
+           active:scale-[0.98];
+  }
+}
