@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import { InputCard, ConfigCard, ResultCard, StepIndicator, TaskProgress } from '@/components'
+import { useSession } from 'next-auth/react'
+import { InputCard, ConfigCard, ResultCard, StepIndicator, TaskProgress, Header } from '@/components'
 import { Section, TaskState } from '@/types'
 
 export default function Home() {
+  const { data: session } = useSession()
   const [currentStep, setCurrentStep] = useState(1)
   const [rawText, setRawText] = useState('')
   const [sections, setSections] = useState<Section[]>([])
@@ -140,6 +142,22 @@ export default function Home() {
       setSections(sectionsWithImages)
       setFullText(sectionsWithImages.map(s => s.section_text).join('\n\n'))
 
+      // 如果用户已登录，保存历史记录
+      if (session?.user) {
+        try {
+          await fetch('/api/history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              rawText,
+              resultJson: JSON.stringify(sectionsWithImages),
+            }),
+          })
+        } catch (e) {
+          console.error('保存历史记录失败:', e)
+        }
+      }
+
       // 短暂延迟后进入结果页
       setTimeout(() => {
         setCurrentStep(3)
@@ -220,20 +238,7 @@ export default function Home() {
   return (
     <main className="min-h-screen py-8 px-4">
       {/* 顶部导航 */}
-      <header className="max-w-4xl mx-auto mb-8">
-        <div className="flex items-center justify-center gap-3">
-          {/* Logo */}
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-400 flex items-center justify-center shadow-button">
-            <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">小红书文生图</h1>
-            <p className="text-sm text-text-muted">3步完成小红书图文发布</p>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* 步骤指示器 */}
       <div className="max-w-4xl mx-auto">
@@ -275,9 +280,6 @@ export default function Home() {
 
       {/* 页脚 */}
       <footer className="max-w-4xl mx-auto mt-12 text-center">
-        <p className="text-sm text-text-muted">
-          游客模式 · 无需登录即可使用
-        </p>
         <p className="text-xs text-text-muted/60 mt-2">
           图片比例固定为 3:4 · 小红书最佳展示效果
         </p>

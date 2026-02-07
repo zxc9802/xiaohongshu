@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import AuthProvider from '@/components/AuthProvider'
 
 export const metadata: Metadata = {
   title: '小红书文生图 - AI一键生成小红书图文',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="font-sans text-text-primary antialiased min-h-screen selection:bg-primary-100 selection:text-primary-600">
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )

@@ -298,20 +298,6 @@ export default function ResultCard({ sections, fullText, onReset, onRetrySection
                 alt="预览大图"
                 className="max-h-[85vh] max-w-full rounded-lg shadow-2xl object-contain"
               />
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  const index = sections.findIndex(s => s.image_url === previewImage)
-                  downloadImage(previewImage, `小红书配图_${index + 1}.jpg`)
-                }}
-                className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2.5 rounded-full bg-white text-primary-600 font-bold shadow-xl flex items-center gap-2 hover:bg-primary-50 transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                下载原图
-              </motion.button>
             </motion.div>
           </motion.div>
         )}
