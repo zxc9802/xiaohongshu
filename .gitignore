@@ -45,3 +45,19 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+node_modules
+
+# AI Tools
+.agent/
+.claude/
+.codebuddy/
+.codex/
+.continue/
+.cursor/
+.gemini/
+.kiro/
+.opencode/
+.qoder/
+.roo/
+.trae/
+.windsurf/
