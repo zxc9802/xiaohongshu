@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Check, Copy, Download, RefreshCw, X, ChevronRight, Image as ImageIcon, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Section } from '@/types'
 
 interface ResultCardProps {
@@ -27,13 +29,12 @@ export default function ResultCard({ sections, fullText, onReset, onRetrySection
         setTimeout(() => setCopiedAll(false), 2000)
       }
     } catch (err) {
-      console.error('复制失败:', err)
+      console.error('Copy failed:', err)
     }
   }
 
   const downloadImage = async (url: string, filename: string) => {
     try {
-      // 使用代理下载API
       const downloadUrl = `/api/download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`
       const link = document.createElement('a')
       link.href = downloadUrl
@@ -42,7 +43,7 @@ export default function ResultCard({ sections, fullText, onReset, onRetrySection
       link.click()
       document.body.removeChild(link)
     } catch (err) {
-      console.error('下载失败:', err)
+      console.error('Download failed:', err)
     }
   }
 
@@ -53,7 +54,6 @@ export default function ResultCard({ sections, fullText, onReset, onRetrySection
         const section = sections[i]
         if (section.image_url) {
           await downloadImage(section.image_url, `小红书配图_${i + 1}.jpg`)
-          // 添加延迟避免浏览器阻止多次下载
           await new Promise(resolve => setTimeout(resolve, 500))
         }
       }
@@ -67,257 +67,255 @@ export default function ResultCard({ sections, fullText, onReset, onRetrySection
 
   return (
     <>
-      <div className="bg-white rounded-3xl shadow-card p-8 animate-fade-in">
-        {/* 卡片头部 */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-green-500 to-green-400 flex items-center justify-center text-white shadow-lg">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden"
+      >
+        {/* Header */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-green-500/30">
+              <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-text-primary">生成完成</h2>
-              <p className="text-sm text-text-muted">共 {sections.length} 段内容，可直接发布小红书</p>
+              <h2 className="text-xl font-bold text-text-primary">生成完成</h2>
+              <p className="text-text-muted">共 {sections.length} 段内容，可直接发布小红书</p>
             </div>
           </div>
 
           <button
             onClick={onReset}
-            className="btn-secondary flex items-center gap-2 text-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-text-secondary hover:bg-white/50 hover:text-text-primary transition-all duration-200 text-sm font-medium"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
+            <RefreshCw className="w-4 h-4" />
             重新开始
           </button>
         </div>
 
-        {/* 审核状态 */}
-        <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 ${allPassed ? 'bg-green-50' : 'bg-yellow-50'}`}>
+        {/* Audit Status Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className={`mb-8 p-4 rounded-2xl flex items-center gap-3 border ${allPassed ? 'bg-green-50/50 border-green-100' : 'bg-amber-50/50 border-amber-100'}`}
+        >
           {allPassed ? (
             <>
-              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shrink-0 shadow-sm">
+                <Check className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="font-medium text-green-800">审核全部通过</p>
-                <p className="text-sm text-green-600">内容安全，可放心发布</p>
+                <p className="font-bold text-green-800 text-sm">审核全部通过</p>
+                <p className="text-xs text-green-700/80">内容安全，内容优质，可放心发布</p>
               </div>
             </>
           ) : (
             <>
-              <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
+              <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center shrink-0 shadow-sm">
+                <AlertCircle className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="font-medium text-yellow-800">部分内容需要修改</p>
-                <p className="text-sm text-yellow-600">{sections.length - passedSections.length} 段内容未通过审核</p>
+                <p className="font-bold text-amber-800 text-sm">部分内容建议优化</p>
+                <p className="text-xs text-amber-700/80">{sections.length - passedSections.length} 段内容未完全通过审核</p>
               </div>
             </>
           )}
-        </div>
+        </motion.div>
 
-        {/* 分段内容列表 */}
-        <div className="space-y-4 mb-8">
+        {/* Content Grid */}
+        <div className="grid gap-6 mb-8">
           {sections.map((section, index) => (
-            <div
+            <motion.div
               key={section.section_id}
-              className={`p-5 rounded-2xl border-2 transition-all duration-200 ${
-                section.audit_status === 'pass'
-                  ? 'border-gray-100 hover:border-primary-200'
-                  : 'border-yellow-200 bg-yellow-50/50'
-              }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 + 0.3 }}
+              className={`
+                group relative p-5 rounded-2xl border transition-all duration-300 hover:shadow-lg
+                ${section.audit_status === 'pass'
+                  ? 'bg-white/40 border-white/60 hover:border-white hover:bg-white/60'
+                  : 'bg-amber-50/30 border-amber-100 hover:border-amber-200'
+                }
+              `}
             >
-              <div className="flex gap-4">
-                {/* 配图预览 */}
-                <div className="flex-shrink-0">
-                  <div className="w-28 h-36 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 overflow-hidden relative group">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Image Preview */}
+                <div className="shrink-0 flex justify-center md:justify-start">
+                  <div className="w-32 h-40 md:w-36 md:h-48 rounded-xl overflow-hidden relative shadow-md group-hover:shadow-xl transition-all duration-300">
                     {section.image_url ? (
-                      <img
-                        src={section.image_url}
-                        alt={`段落${index + 1}配图`}
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        <img
+                          src={section.image_url}
+                          alt={`段落${index + 1}配图`}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        {/* Overlay Actions */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px]">
+                          <button
+                            onClick={() => setPreviewImage(section.image_url!)}
+                            className="p-2 rounded-full bg-white/90 text-text-primary hover:bg-white hover:scale-110 transition-all shadow-lg"
+                            title="预览"
+                          >
+                            <ImageIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => downloadImage(section.image_url!, `小红书配图_${index + 1}.jpg`)}
+                            className="p-2 rounded-full bg-white/90 text-text-primary hover:bg-white hover:scale-110 transition-all shadow-lg"
+                            title="下载"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg className="w-8 h-8 text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
-
-                    {/* 操作按钮悬浮层 */}
-                    {section.image_url && (
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2">
-                        {/* 放大预览按钮 */}
-                        <button
-                          onClick={() => setPreviewImage(section.image_url!)}
-                          className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center cursor-pointer hover:bg-white transition-colors"
-                          title="放大预览"
-                        >
-                          <svg className="w-4 h-4 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                          </svg>
-                        </button>
-                        {/* 下载按钮 */}
-                        <button
-                          onClick={() => downloadImage(section.image_url!, `小红书配图_${index + 1}.jpg`)}
-                          className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center cursor-pointer hover:bg-white transition-colors"
-                          title="下载图片"
-                        >
-                          <svg className="w-4 h-4 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                        </button>
+                      <div className="w-full h-full bg-primary-50 flex items-center justify-center">
+                        <ImageIcon className="w-8 h-8 text-primary-200" />
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* 文案内容 */}
+                {/* Text Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-primary-500 bg-primary-50 px-2 py-1 rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-primary-50 text-primary-600">
                       段落 {index + 1}
                     </span>
+
                     <div className="flex items-center gap-2">
                       {section.audit_status !== 'pass' && (
                         <button
                           onClick={() => onRetrySection(section.section_id)}
-                          className="text-xs text-yellow-600 hover:text-yellow-700 flex items-center gap-1 cursor-pointer"
+                          className="flex items-center gap-1 text-xs font-medium text-amber-600 hover:text-amber-700 px-2 py-1 rounded-lg hover:bg-amber-50 transition-colors"
                         >
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                          </svg>
+                          <RefreshCw className="w-3 h-3" />
                           重试
                         </button>
                       )}
+
                       <button
                         onClick={() => copyToClipboard(section.section_text, section.section_id)}
-                        className="text-xs text-text-muted hover:text-primary-500 flex items-center gap-1 cursor-pointer transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-primary-600 px-2 py-1 rounded-lg hover:bg-primary-50 transition-all"
                       >
                         {copiedId === section.section_id ? (
                           <>
-                            <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
+                            <Check className="w-3 h-3 text-green-500" />
                             <span className="text-green-500">已复制</span>
                           </>
                         ) : (
                           <>
-                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
+                            <Copy className="w-3 h-3" />
                             复制
                           </>
                         )}
                       </button>
                     </div>
                   </div>
-                  <p className="text-sm text-text-primary leading-relaxed">
-                    {section.section_text}
-                  </p>
+
+                  <div className="relative">
+                    <p className="text-sm text-text-primary leading-7 whitespace-pre-wrap font-medium">
+                      {section.section_text}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        {/* 底部操作区 */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-6 border-t border-gray-100">
-          <button
+        {/* Footer Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/60">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => copyToClipboard(fullText)}
-            className="btn-secondary flex items-center justify-center gap-2"
+            className="w-full sm:w-auto btn-secondary flex items-center justify-center gap-2"
           >
             {copiedAll ? (
               <>
-                <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                已复制全文
+                <Check className="w-4 h-4 text-green-500" />
+                <span className="text-green-600 font-bold">已复制全文</span>
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
+                <Copy className="w-4 h-4" />
                 一键复制全文
               </>
             )}
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, translateY: -2 }}
+            whileTap={{ scale: 0.98 }}
             onClick={downloadAllImages}
             disabled={downloadingAll}
-            className="btn-primary flex items-center justify-center gap-2"
+            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30"
           >
             {downloadingAll ? (
               <>
-                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
+                <RefreshCw className="w-4 h-4 animate-spin" />
                 下载中...
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
+                <Download className="w-4 h-4" />
                 下载全部图片
               </>
             )}
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
-      {/* 图片预览模态框 */}
-      {previewImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 animate-fade-in"
-          onClick={() => setPreviewImage(null)}
-        >
-          <div className="relative max-w-4xl max-h-[90vh] m-4">
-            {/* 关闭按钮 */}
-            <button
-              onClick={() => setPreviewImage(null)}
-              className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 cursor-pointer transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            {/* 图片 */}
-            <img
-              src={previewImage}
-              alt="预览大图"
-              className="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain"
+      {/* Image Preview Modal */}
+      <AnimatePresence>
+        {previewImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            onClick={() => setPreviewImage(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
-            />
-
-            {/* 下载按钮 */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                const index = sections.findIndex(s => s.image_url === previewImage)
-                downloadImage(previewImage, `小红书配图_${index + 1}.jpg`)
-              }}
-              className="absolute -bottom-14 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full bg-white text-primary-500 font-medium flex items-center gap-2 hover:bg-primary-50 cursor-pointer transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              下载图片
-            </button>
-          </div>
-        </div>
-      )}
+              <button
+                onClick={() => setPreviewImage(null)}
+                className="absolute -top-12 right-0 md:-right-12 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <img
+                src={previewImage}
+                alt="预览大图"
+                className="max-h-[85vh] max-w-full rounded-lg shadow-2xl object-contain"
+              />
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const index = sections.findIndex(s => s.image_url === previewImage)
+                  downloadImage(previewImage, `小红书配图_${index + 1}.jpg`)
+                }}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2.5 rounded-full bg-white text-primary-600 font-bold shadow-xl flex items-center gap-2 hover:bg-primary-50 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                下载原图
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

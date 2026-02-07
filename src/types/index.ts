@@ -45,10 +45,40 @@ export const toneTemplates: ToneTemplate[] = [
 
 // 预设配图风格模板
 export const styleTemplates: StyleTemplate[] = [
-  { id: 'food', name: '美食探店', description: '暖色调、食物特写', preview: '/previews/food.jpg' },
-  { id: 'travel', name: '旅行日记', description: '风景大片、清新自然', preview: '/previews/travel.jpg' },
-  { id: 'fashion', name: '穿搭分享', description: '时尚街拍、简约大气', preview: '/previews/fashion.jpg' },
-  { id: 'lifestyle', name: '生活日常', description: '温馨居家、ins风格', preview: '/previews/lifestyle.jpg' },
-  { id: 'beauty', name: '美妆护肤', description: '柔光特写、产品展示', preview: '/previews/beauty.jpg' },
-  { id: 'knowledge', name: '知识分享', description: '清晰图表、文字排版', preview: '/previews/knowledge.jpg' },
+  {
+    id: 'food',
+    name: '美食探店',
+    description: '暖色调、食物特写',
+    preview: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'travel',
+    name: '旅行日记',
+    description: '风景大片、清新自然',
+    preview: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'fashion',
+    name: '穿搭分享',
+    description: '时尚街拍、简约大气',
+    preview: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'lifestyle',
+    name: '生活日常',
+    description: '温馨居家、ins风格',
+    preview: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'beauty',
+    name: '美妆护肤',
+    description: '柔光特写、产品展示',
+    preview: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'knowledge',
+    name: '知识分享',
+    description: '清晰图表、文字排版',
+    preview: 'https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=600'
+  },
 ]

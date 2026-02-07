@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import { toneTemplates, styleTemplates, ToneTemplate, StyleTemplate } from '@/types'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Settings, Sparkles, ChevronLeft, Zap, Palette, Type, LayoutTemplate, MessageSquare } from 'lucide-react'
+import { toneTemplates, styleTemplates } from '@/types'
 
 interface ConfigCardProps {
   onBack: () => void
@@ -28,187 +30,202 @@ export default function ConfigCard({ onBack, onGenerate }: ConfigCardProps) {
     })
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } }
+  }
+
   return (
-    <div className="bg-white rounded-3xl shadow-card p-8 animate-fade-in card-hover">
-      {/* 卡片头部 */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-400 flex items-center justify-center text-white shadow-button">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="glass-card rounded-3xl p-8 md:p-10 relative overflow-hidden"
+    >
+      {/* Decorative background gradients */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-secondary-100/30 rounded-full blur-3xl -z-10 translate-y-[-50%] translate-x-[-50%]" />
+
+      {/* Header */}
+      <div className="flex items-start gap-5 mb-8">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white shadow-lg shadow-primary-500/30 shrink-0">
+          <Settings className="w-7 h-7" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-text-primary">选择风格与规则</h2>
-          <p className="text-sm text-text-muted">定制你的小红书图文风格</p>
+          <h2 className="text-2xl font-bold text-text-primary mb-1">定制风格</h2>
+          <p className="text-text-secondary">选择适合的语气和配图风格，打造爆款内容</p>
         </div>
       </div>
 
-      {/* 改写语气选择 */}
-      <div className="mb-8">
-        <label className="block text-sm font-medium text-text-primary mb-3">
+      {/* Tone Selection */}
+      <div className="mb-10">
+        <label className="flex items-center gap-2 text-sm font-semibold text-text-secondary uppercase tracking-wider mb-4">
+          <MessageSquare className="w-4 h-4" />
           改写语气
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {toneTemplates.map((tone) => (
-            <button
+            <motion.button
               key={tone.id}
               onClick={() => setSelectedTone(tone.id)}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
               className={`
-                p-4 rounded-2xl border-2 text-left cursor-pointer
-                transition-all duration-200
+                relative p-4 rounded-2xl text-left cursor-pointer overflow-hidden
+                transition-all duration-300 border
                 ${selectedTone === tone.id
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-gray-100 hover:border-primary-200 hover:bg-primary-50/50'
+                  ? 'bg-gradient-to-br from-primary-500 to-primary-600 border-transparent text-white shadow-lg shadow-primary-500/30'
+                  : 'bg-white/60 hover:bg-white border-white/60 hover:border-white shadow-sm hover:shadow-md text-text-primary'
                 }
               `}
             >
               <span className="text-2xl mb-2 block">{tone.icon}</span>
-              <p className="font-medium text-text-primary text-sm">{tone.name}</p>
-              <p className="text-xs text-text-muted mt-1">{tone.description}</p>
-            </button>
+              <p className={`font-bold text-sm mb-1 ${selectedTone === tone.id ? 'text-white' : 'text-text-primary'}`}>
+                {tone.name}
+              </p>
+              <p className={`text-xs leading-relaxed ${selectedTone === tone.id ? 'text-white/80' : 'text-text-muted'}`}>
+                {tone.description}
+              </p>
+            </motion.button>
           ))}
         </div>
       </div>
 
-      {/* 配图方式切换 */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-text-primary mb-3">
+      {/* Image Style Selection Mode */}
+      <div className="mb-8">
+        <label className="flex items-center gap-2 text-sm font-semibold text-text-secondary uppercase tracking-wider mb-4">
+          <Palette className="w-4 h-4" />
           配图方式
         </label>
-        <div className="flex gap-3">
+        <div className="flex p-1.5 bg-primary-50/50 rounded-2xl border border-primary-100/50 relative">
+          <motion.div
+            className="absolute top-1.5 bottom-1.5 rounded-xl bg-white shadow-sm z-0"
+            animate={{
+              left: useTemplate ? '0.375rem' : '50%',
+              right: useTemplate ? '50%' : '0.375rem',
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
           <button
             onClick={() => setUseTemplate(true)}
-            className={`
-              flex-1 py-3 px-4 rounded-2xl font-medium cursor-pointer
-              transition-all duration-200
-              ${useTemplate
-                ? 'bg-primary-500 text-white shadow-button'
-                : 'bg-primary-50 text-primary-500 hover:bg-primary-100'
-              }
-            `}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold z-10 transition-colors duration-200 ${useTemplate ? 'text-primary-600' : 'text-text-muted hover:text-text-secondary'}`}
           >
-            <div className="flex items-center justify-center gap-2">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-              </svg>
-              预设模板
-            </div>
+            <LayoutTemplate className="w-4 h-4" />
+            预设模板
           </button>
           <button
             onClick={() => setUseTemplate(false)}
-            className={`
-              flex-1 py-3 px-4 rounded-2xl font-medium cursor-pointer
-              transition-all duration-200
-              ${!useTemplate
-                ? 'bg-primary-500 text-white shadow-button'
-                : 'bg-primary-50 text-primary-500 hover:bg-primary-100'
-              }
-            `}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold z-10 transition-colors duration-200 ${!useTemplate ? 'text-primary-600' : 'text-text-muted hover:text-text-secondary'}`}
           >
-            <div className="flex items-center justify-center gap-2">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              自由提示词
-            </div>
+            <Type className="w-4 h-4" />
+            自由提示词
           </button>
         </div>
       </div>
 
-      {/* 预设模板选择 */}
-      {useTemplate && (
-        <div className="mb-6 animate-fade-in">
-          <label className="block text-sm font-medium text-text-primary mb-3">
-            选择配图风格
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {styleTemplates.map((style) => (
-              <button
-                key={style.id}
-                onClick={() => setSelectedStyle(style.id)}
-                className={`
-                  relative p-4 rounded-2xl border-2 text-left cursor-pointer overflow-hidden
-                  transition-all duration-200
-                  ${selectedStyle === style.id
-                    ? 'border-primary-500 bg-primary-50'
-                    : 'border-gray-100 hover:border-primary-200'
-                  }
-                `}
-              >
-                {/* 预览色块 */}
-                <div className="w-full h-16 rounded-xl bg-gradient-to-br from-primary-100 to-primary-200 mb-3" />
-                <p className="font-medium text-text-primary text-sm">{style.name}</p>
-                <p className="text-xs text-text-muted mt-1">{style.description}</p>
+      {/* Style Templates Grid */}
+      <AnimatePresence mode="wait">
+        {useTemplate ? (
+          <motion.div
+            key="templates"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-8 overflow-hidden"
+          >
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {styleTemplates.map((style) => (
+                <motion.button
+                  key={style.id}
+                  onClick={() => setSelectedStyle(style.id)}
+                  whileHover={{ y: -5 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`
+                    group relative rounded-2xl cursor-pointer overflow-hidden aspect-[4/3]
+                    transition-all duration-300 border-2
+                    ${selectedStyle === style.id
+                      ? 'border-primary-500 ring-4 ring-primary-100 shadow-xl'
+                      : 'border-transparent hover:border-primary-200 shadow-md'
+                    }
+                  `}
+                >
+                  {/* Style Preview Image */}
+                  <img
+                    src={style.preview}
+                    alt={style.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
 
-                {selectedStyle === style.id && (
-                  <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary-500 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                  {/* Overlay Content */}
+                  <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-12 text-left">
+                    <p className="text-white font-bold text-sm drop-shadow-md">{style.name}</p>
+                    <p className="text-white/80 text-xs truncate max-w-full">{style.description}</p>
                   </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* 自由提示词输入 */}
-      <div className="mb-8">
-        <label className="block text-sm font-medium text-text-primary mb-3">
-          {useTemplate ? '补充提示词（可选）' : '自由提示词'}
-        </label>
-        <textarea
-          value={freePrompt}
-          onChange={(e) => setFreePrompt(e.target.value)}
-          placeholder={useTemplate
-            ? '例如：添加一些复古滤镜效果、使用暖色调...'
-            : '描述你想要的配图风格，例如：极简白底、产品特写、ins风格滤镜...'
-          }
-          className="w-full h-24 p-4 bg-primary-50/50 border-2 border-transparent rounded-2xl
-                     text-text-primary placeholder:text-text-muted/60 resize-none
-                     focus:border-primary-300 focus:bg-white
-                     transition-all duration-300"
-        />
-      </div>
+                  {/* Selected Indicator */}
+                  {selectedStyle === style.id && (
+                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary-500 shadow-lg flex items-center justify-center border-2 border-white animate-scale-in">
+                      <Sparkles className="w-3.5 h-3.5 text-white" />
+                    </div>
+                  )}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="free-prompt"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-8 overflow-hidden"
+          >
+            <textarea
+              value={freePrompt}
+              onChange={(e) => setFreePrompt(e.target.value)}
+              placeholder="描述你想要的配图风格，例如：极简白底、产品特写、ins风格滤镜..."
+              className="w-full h-32 p-4 bg-white/60 backdrop-blur-sm border border-white/60 rounded-2xl
+                         text-text-primary placeholder:text-text-muted/60 resize-none
+                         focus:border-primary-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary-100
+                         transition-all duration-300 shadow-inner"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* 图片比例提示 */}
-      <div className="mb-8 p-4 bg-primary-50/50 rounded-2xl">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-primary-100 flex items-center justify-center">
-            <svg className="w-4 h-4 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-text-primary">图片比例：3:4</p>
-            <p className="text-xs text-text-muted">小红书最佳展示比例，固定生成</p>
-          </div>
-        </div>
-      </div>
-
-      {/* 底部操作区 */}
-      <div className="flex items-center justify-between">
-        <button
+      {/* Footer Actions */}
+      <div className="flex items-center justify-between pt-6 border-t border-primary-100/50">
+        <motion.button
           onClick={onBack}
-          className="btn-secondary flex items-center gap-2"
+          whileHover={{ x: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex items-center gap-2 text-text-secondary hover:text-text-primary font-medium px-4 py-2 rounded-xl hover:bg-white/50 transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          上一步
-        </button>
+          <ChevronLeft className="w-5 h-5" />
+          返回修改
+        </motion.button>
 
-        <button
+        <motion.button
           onClick={handleGenerate}
-          className="btn-primary flex items-center gap-2"
+          whileHover={{ scale: 1.02, translateY: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-white shadow-lg bg-gradient-to-r from-primary-500 to-primary-600 shadow-primary-500/40 hover:shadow-primary-500/60 transition-all duration-300"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
+          <Zap className="w-5 h-5 fill-current" />
           开始生成
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   )
+}
+
+// Helper to generate different gradients for styles
+function getGradientForStyle(styleId: string): string {
+  switch (styleId) {
+    case 'photography': return 'from-orange-100 to-amber-200'
+    case 'illustration': return 'from-blue-100 to-cyan-200'
+    case 'minimalist': return 'from-gray-100 to-slate-200'
+    case 'tech': return 'from-violet-100 to-fuchsia-200'
+    case 'lifestyle': return 'from-green-100 to-emerald-200'
+    default: return 'from-primary-100 to-primary-200'
+  }
 }

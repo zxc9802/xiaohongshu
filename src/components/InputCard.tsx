@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Clipboard, ArrowRight, Sparkles } from 'lucide-react'
 
 interface InputCardProps {
   onNext: (text: string) => void
@@ -9,19 +11,17 @@ interface InputCardProps {
 
 export default function InputCard({ onNext, initialText = '' }: InputCardProps) {
   const [text, setText] = useState(initialText)
-  const [charCount, setCharCount] = useState(initialText.length)
+  const [isFocused, setIsFocused] = useState(false)
+
+  const charCount = text.length
+  const minChars = 50
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newText = e.target.value
-    setText(newText)
-    setCharCount(newText.length)
+    setText(e.target.value)
   }
 
   const handleSubmit = () => {
-    if (text.trim().length < 50) {
-      alert('请输入至少50字的文章内容')
-      return
-    }
+    if (charCount < minChars) return
     onNext(text)
   }
 
@@ -29,78 +29,114 @@ export default function InputCard({ onNext, initialText = '' }: InputCardProps) 
     try {
       const clipboardText = await navigator.clipboard.readText()
       setText(clipboardText)
-      setCharCount(clipboardText.length)
     } catch (err) {
-      console.error('粘贴失败:', err)
+      console.error('Failed to paste:', err)
     }
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-card p-8 animate-fade-in card-hover">
-      {/* 卡片头部 */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-400 flex items-center justify-center text-white shadow-button">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="glass-card rounded-3xl p-8 md:p-10 relative overflow-hidden"
+    >
+      {/* Decorative background gradients */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary-100/30 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
+
+      {/* Header */}
+      <div className="flex items-start gap-5 mb-8">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white shadow-lg shadow-primary-500/30 shrink-0">
+          <Sparkles className="w-7 h-7" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-text-primary">粘贴你的长文章</h2>
-          <p className="text-sm text-text-muted">AI将帮你改写成小红书风格</p>
+          <h2 className="text-2xl font-bold text-text-primary mb-1">粘贴你的长文章</h2>
+          <p className="text-text-secondary">AI将自动识别段落，为你改写成爆款小红书文案</p>
         </div>
       </div>
 
-      {/* 文本输入区 */}
-      <div className="relative">
-        <textarea
-          value={text}
-          onChange={handleTextChange}
-          placeholder="在这里粘贴你的原始文章内容...&#10;&#10;支持任意长度的文章，AI会自动识别段落结构，改写成适合小红书阅读的风格，并为每段生成精美配图。"
-          className="w-full h-64 p-5 bg-primary-50/50 border-2 border-transparent rounded-2xl
-                     text-text-primary placeholder:text-text-muted/60 resize-none
-                     focus:border-primary-300 focus:bg-white
-                     transition-all duration-300"
+      {/* Input Area */}
+      <div className="relative group">
+        <div
+          className={`absolute -inset-0.5 bg-gradient-to-r from-primary-300 to-secondary-300 rounded-2xl opacity-0 transition duration-300 ${isFocused ? 'opacity-50 blur' : ''}`}
         />
+        <div className="relative">
+          <textarea
+            value={text}
+            onChange={handleTextChange}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder="在这里粘贴你的原始文章内容...&#10;&#10;支持任意长度的文章，AI会自动识别段落结构，改写成适合小红书阅读的风格，并为每段生成精美配图。"
+            className="w-full h-80 p-6 bg-white/60 backdrop-blur-sm border border-white/60 rounded-2xl
+                       text-text-primary placeholder:text-text-muted/70 text-lg leading-relaxed resize-none
+                       focus:outline-none focus:bg-white focus:border-white
+                       transition-all duration-300 shadow-inner"
+          />
 
-        {/* 快捷操作栏 */}
-        <div className="absolute bottom-4 right-4 flex items-center gap-2">
-          <button
-            onClick={handlePaste}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
-                       bg-white/80 text-text-secondary text-sm font-medium
-                       hover:bg-primary-100 hover:text-primary-600 cursor-pointer
-                       transition-colors duration-200"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            粘贴
-          </button>
-        </div>
-      </div>
+          {/* Floating Paste Button */}
+          {!text && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <motion.button
+                onClick={handlePaste}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="pointer-events-auto flex items-center gap-2 px-6 py-3 rounded-xl
+                           bg-white shadow-card text-primary-600 font-medium
+                           hover:text-primary-700 hover:shadow-card-hover
+                           transition-all duration-300 group/btn"
+              >
+                <Clipboard className="w-5 h-5 group-hover/btn:rotate-12 transition-transform" />
+                点击粘贴内容
+              </motion.button>
+            </div>
+          )}
 
-      {/* 底部操作区 */}
-      <div className="flex items-center justify-between mt-6">
-        <div className="flex items-center gap-4">
-          <span className={`text-sm ${charCount < 50 ? 'text-text-muted' : 'text-primary-500'}`}>
-            已输入 <strong>{charCount}</strong> 字
-          </span>
-          {charCount < 50 && (
-            <span className="text-xs text-text-muted">建议至少50字</span>
+          {/* Quick Actions (Bottom Right) */}
+          {text && (
+            <div className="absolute bottom-4 right-4">
+              <button
+                onClick={handlePaste}
+                className="p-2 rounded-xl bg-white/80 hover:bg-white text-text-secondary hover:text-primary-600
+                           shadow-sm hover:shadow transition-all duration-200"
+                title="重新粘贴"
+              >
+                <Clipboard className="w-5 h-5" />
+              </button>
+            </div>
           )}
         </div>
-
-        <button
-          onClick={handleSubmit}
-          disabled={charCount < 50}
-          className="btn-primary flex items-center gap-2"
-        >
-          下一步：选择风格
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
       </div>
-    </div>
+
+      {/* Footer Actions */}
+      <div className="flex items-center justify-between mt-8">
+        <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/50 border border-white/60">
+            <span className={charCount < minChars ? 'text-text-muted' : 'text-primary-600 font-semibold'}>
+              {charCount} 字
+            </span>
+            <span className="text-text-muted/60">/</span>
+            <span className="text-text-muted">至少 50 字</span>
+          </div>
+        </div>
+
+        <motion.button
+          onClick={handleSubmit}
+          disabled={charCount < minChars}
+          whileHover={{ scale: 1.02, translateY: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className={`
+            flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-white shadow-lg
+            transition-all duration-300
+            ${charCount < minChars
+              ? 'bg-gray-300 cursor-not-allowed shadow-none opacity-70'
+              : 'bg-gradient-to-r from-primary-500 to-primary-600 shadow-primary-500/40 hover:shadow-primary-500/60'
+            }
+          `}
+        >
+          下一步
+          <ArrowRight className="w-5 h-5" />
+        </motion.button>
+      </div>
+    </motion.div>
   )
 }

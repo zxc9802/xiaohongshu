@@ -5,14 +5,7 @@
 @tailwind utilities;
 
 :root {
-  --primary: #FF2442;
-  --primary-light: #FFF1F2;
-  --secondary: #FB7185;
-  --background: #FFF8F8;
-  --surface: #FFFFFF;
-  --text-primary: #1A1A1A;
-  --text-secondary: #666666;
-  --text-muted: #999999;
+  /* Using Tailwind Colors */
 }
 
 * {
@@ -26,82 +19,94 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   font-family: 'Noto Sans SC', system-ui, sans-serif;
-  background: linear-gradient(180deg, #FFF8F8 0%, #FFFFFF 100%);
+  background-color: #F8F9FC;
+  background-image: radial-gradient(at 40% 20%, rgba(255,200,200,0.15) 0px, transparent 50%),
+                    radial-gradient(at 80% 0%, rgba(255,36,66,0.05) 0px, transparent 50%),
+                    radial-gradient(at 0% 50%, rgba(255,255,255,1) 0px, transparent 50%);
+  background-attachment: fixed;
   min-height: 100vh;
+  color: #1F1F1F;
 }
 
-/* 自定义滚动条 - 小红书风格 */
+/* Slim Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #FFF1F2;
-  border-radius: 3px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #FF2442 0%, #FB7185 100%);
-  border-radius: 3px;
+  background: rgba(255, 36, 66, 0.2);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #E11D48;
+  background: rgba(255, 36, 66, 0.4);
 }
 
-/* 文本选中样式 */
+/* Selection */
 ::selection {
-  background: rgba(255, 36, 66, 0.2);
-  color: #1A1A1A;
+  background: rgba(255, 36, 66, 0.15);
+  color: #FF2442;
 }
 
-/* 输入框焦点样式 */
+/* Focus States */
 textarea:focus,
 input:focus,
 select:focus {
   outline: none;
   border-color: #FF2442;
-  box-shadow: 0 0 0 3px rgba(255, 36, 66, 0.1);
+  box-shadow: 0 0 0 4px rgba(255, 36, 66, 0.1);
 }
 
-/* 按钮点击效果 */
-button:active {
-  transform: scale(0.98);
-}
-
-/* 卡片悬浮效果 */
+/* Glass Utilities */
 @layer utilities {
-  .card-hover {
-    @apply transition-all duration-300 ease-out;
+  .glass-panel {
+    @apply bg-surface-glass backdrop-blur-xl border border-white/60 shadow-soft;
   }
-
-  .card-hover:hover {
-    @apply shadow-card-hover -translate-y-1;
-  }
-
+  
   .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-white/50;
+    @apply bg-surface-float backdrop-blur-2xl border border-white/80 shadow-3d transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply shadow-3d-hover -translate-y-1 border-white;
   }
 
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary-500 to-primary-400 bg-clip-text text-transparent;
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent;
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-500 to-primary-400 text-white font-medium
-           py-3 px-6 rounded-2xl shadow-button cursor-pointer
-           transition-all duration-200 ease-out
-           hover:shadow-lg hover:-translate-y-0.5
+    @apply bg-gradient-to-br from-primary-500 to-primary-600 text-white font-medium
+           py-3 px-8 rounded-full shadow-glow cursor-pointer
+           transition-all duration-300 ease-out
+           hover:shadow-3d-hover hover:-translate-y-0.5 hover:scale-[1.02]
            active:scale-[0.98]
            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
   }
 
   .btn-secondary {
-    @apply bg-primary-50 text-primary-500 font-medium
-           py-3 px-6 rounded-2xl cursor-pointer
-           transition-all duration-200 ease-out
-           hover:bg-primary-100
+    @apply bg-white text-primary-600 font-medium
+           py-3 px-8 rounded-full border border-primary-100 shadow-soft cursor-pointer
+           transition-all duration-300 ease-out
+           hover:bg-primary-50 hover:border-primary-200 hover:-translate-y-0.5
            active:scale-[0.98];
+  }
+  
+  .btn-icon {
+    @apply p-2 rounded-full text-text-secondary hover:text-primary-500 hover:bg-primary-50 transition-colors duration-200;
+  }
+
+  /* 3D Effects */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  
+  .preserve-3d {
+    transform-style: preserve-3d;
   }
 }
